@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, url_for, redirect
 from flask_bootstrap import Bootstrap5
+import requests
 import os
 
 from db import db
 from movie_model import Movie
+
+TMDB_TOKEN = os.environ.get('TMDB_TOKEN')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -47,6 +50,28 @@ def delete_movie():
     db.session.delete(movie_to_delete)
     db.session.commit()
     return redirect(url_for('home'))
+
+
+def get_movie_from_query(query):
+    url = "https://api.themoviedb.org/3/search/movie"
+    params = {'query': query}
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Bearer " + TMDB_TOKEN
+    }
+    response = requests.get(url=url, params=params, headers=headers)
+    response.raise_for_status()
+    movies = [movie['original_title'] + ' - ' + movie['release_date'] for movie in response.json()['results']]
+    return movies
+
+
+@app.route("/add", methods=['GET', 'POST'])
+def add_movie():
+    if request.method == "GET":
+        return render_template('add.html', get_query=True)
+    else:
+        movies = get_movie_from_query(query=request.form.get('query'))
+        return render_template('add.html', get_query=False, movies=movies)
 
 
 if __name__ == '__main__':
