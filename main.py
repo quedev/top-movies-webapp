@@ -30,8 +30,8 @@ def update():
         movie_to_edit = db.session.execute(db.select(Movie).where(Movie.id == movie_id)).scalar()
         return render_template("edit.html", movie=movie_to_edit)
     else:
-        id = request.form['id']
-        movie_to_edit = Movie.query.get_or_404(id)
+        movie_id = request.form['id']
+        movie_to_edit = Movie.query.get_or_404(movie_id)
         new_rating = request.form['rating']
         new_review = request.form['review']
         movie_to_edit.rating = new_rating
