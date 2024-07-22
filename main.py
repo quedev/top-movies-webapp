@@ -61,17 +61,17 @@ def get_movie_from_query(query):
     }
     response = requests.get(url=url, params=params, headers=headers)
     response.raise_for_status()
-    movies = [movie['original_title'] + ' - ' + movie['release_date'] for movie in response.json()['results']]
+    movies = [(movie['original_title'], movie['release_date']) for movie in response.json()['results']]
     return movies
 
 
 @app.route("/add", methods=['GET', 'POST'])
 def add_movie():
     if request.method == "GET":
-        return render_template('add.html', get_query=True)
+        return render_template('add.html')
     else:
         movies = get_movie_from_query(query=request.form.get('query'))
-        return render_template('add.html', get_query=False, movies=movies)
+        return render_template('select.html', movies=movies)
 
 
 if __name__ == '__main__':
