@@ -11,7 +11,7 @@ class Movie(db.Model):
     rating: Mapped[float] = mapped_column(Float, nullable=False)
     ranking: Mapped[int] = mapped_column(Integer)
     review: Mapped[str] = mapped_column(String(500), nullable=False)
-    img_url: Mapped[str] = mapped_column(String(250))
+    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
     def __repr__(self):
         return f'<Movie {self.title}>'

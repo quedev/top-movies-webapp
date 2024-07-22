@@ -4,7 +4,17 @@
 
 {% block content %}
 <div class="content">
-  <h1 class="heading">Movie Title</h1>
+  <form action="{{url_for('update', id=movie.id)}}" method="POST">
+    <h1 class="heading">{{movie.title}}</h1>
     <p class="description">Edit Movie Rating</p>
-  </div>
+    <h3>Your rating out of 10, e.g., 7.5</h3>
+    <input name="rating" type="text" placeholder="New Rating">
+    <p></p>
+    <h3>Your Review</h3>
+    <input name="review" type="text" placeholder="New Review">
+    <input hidden="hidden" name="id" value="{{movie.id}}">
+    <p></p>
+    <button type="submit">Update Rating</button>
+  </form>
+</div>
 {% endblock %}
