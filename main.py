@@ -40,5 +40,14 @@ def update():
         return redirect(url_for('home'))
 
 
+@app.route("/delete")
+def delete_movie():
+    movie_id = request.args.get('id')
+    movie_to_delete = Movie.query.get_or_404(movie_id)
+    db.session.delete(movie_to_delete)
+    db.session.commit()
+    return redirect(url_for('home'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
