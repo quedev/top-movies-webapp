@@ -7,6 +7,10 @@ from db import db
 from movie_model import Movie
 
 TMDB_TOKEN = os.environ.get('TMDB_TOKEN')
+TMDB_REQUEST_HEADERS = {
+        "accept": "application/json",
+        "Authorization": "Bearer " + TMDB_TOKEN
+    }
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -55,23 +59,38 @@ def delete_movie():
 def get_movie_from_query(query):
     url = "https://api.themoviedb.org/3/search/movie"
     params = {'query': query}
-    headers = {
-        "accept": "application/json",
-        "Authorization": "Bearer " + TMDB_TOKEN
-    }
-    response = requests.get(url=url, params=params, headers=headers)
+    response = requests.get(url=url, params=params, headers=TMDB_REQUEST_HEADERS)
     response.raise_for_status()
-    movies = [(movie['original_title'], movie['release_date']) for movie in response.json()['results']]
+    movies = [(movie['original_title'], movie['release_date'], movie['id'], movie['original_language']) for movie in response.json()['results']]
     return movies
 
 
 @app.route("/add", methods=['GET', 'POST'])
 def add_movie():
-    if request.method == "GET":
-        return render_template('add.html')
-    else:
+    if request.method == "POST":
         movies = get_movie_from_query(query=request.form.get('query'))
         return render_template('select.html', movies=movies)
+    else:
+        return render_template('add.html')
+
+
+@app.route("/add_movie_to_db")
+def add_movie_to_db():
+    tmdb_id = request.args.get('id')
+    url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+    params = {'language': request.args.get('language')}
+    response = requests.get(url, params=params, headers=TMDB_REQUEST_HEADERS)
+    movie = response.json()
+    movie_to_add = Movie(
+        title=movie['original_title'],
+        year=int(movie['release_date'].split('-')[0]),
+        description=movie['overview'],
+        img_url='https://image.tmdb.org/t/p/w500/' + movie['poster_path']
+    )
+    db.session.add(movie_to_add)
+    db.session.commit()
+
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

@@ -5,12 +5,9 @@
 {% block content %}
 <div class="container">
     <h1 class="heading">Select Movie</h1>
-  <p>
-      {% for movie in movies %}
-        <a href="#"> {{movie[0]}} - {{movie[1]}} </a>
-        <h3> </h3>
-      {% endfor %}
-  </p>
-
+    {% for movie in movies %}
+        <a href="{{url_for('add_movie_to_db', id=movie[2], lang=movie[3])}}"> {{movie[0]}} - {{movie[1]}} </a>
+        <p> </p>
+    {% endfor %}
 </div>
 {% endblock %}
