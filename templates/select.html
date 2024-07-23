@@ -6,7 +6,9 @@
 <div class="container">
     <h1 class="heading">Select Movie</h1>
     {% for movie in movies %}
-        <a href="{{url_for('add_movie_to_db', id=movie[2], lang=movie[3])}}"> {{movie[0]}} - {{movie[1]}} </a>
+        <a href="{{url_for('add_movie_to_db', id=movie['id'], lang=movie['original_language'])}}">
+            {{movie['original_title']}} - {{movie['release_date']}}
+        </a>
         <p> </p>
     {% endfor %}
 </div>

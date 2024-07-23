@@ -24,6 +24,7 @@ with app.app_context():
     db.create_all()
 
 
+# Sort movies by their rating
 def update_rankings():
     with app.app_context():
         movies = db.session.execute(db.select(Movie).order_by(Movie.rating)).scalars().all()
@@ -33,12 +34,13 @@ def update_rankings():
         return movies
 
 
+# Home page
 @app.route("/")
 def home():
-    movies = update_rankings()
-    return render_template("index.html", movies=movies)
+    return render_template("index.html", movies=update_rankings())
 
 
+# request to update movie rating and review by user in database and show on home
 @app.route("/edit", methods=['GET', 'POST'])
 def update():
     if request.method == 'GET':
@@ -65,15 +67,16 @@ def delete_movie():
     return redirect(url_for('home'))
 
 
+# Search results of a query on tmdb
 def get_movie_from_query(query):
     url = "https://api.themoviedb.org/3/search/movie"
     params = {'query': query}
     response = requests.get(url=url, params=params, headers=TMDB_REQUEST_HEADERS)
-    response.raise_for_status()
-    movies = [(movie['original_title'], movie['release_date'], movie['id'], movie['original_language']) for movie in response.json()['results']]
+    movies = response.json()['results']
     return movies
 
 
+# Render search query results and show them on /add page
 @app.route("/add", methods=['GET', 'POST'])
 def add_movie():
     if request.method == "POST":
@@ -83,6 +86,7 @@ def add_movie():
         return render_template('add.html')
 
 
+# Search selected movie by user in tmdb and add to database
 @app.route("/add_movie_to_db")
 def add_movie_to_db():
     tmdb_id = request.args.get('id')
