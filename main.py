@@ -24,10 +24,19 @@ with app.app_context():
     db.create_all()
 
 
+def update_rankings():
+    with app.app_context():
+        movies = db.session.execute(db.select(Movie).order_by(Movie.rating)).scalars().all()
+        movies = list(reversed(movies))
+        for i, movie in enumerate(movies):
+            movie.ranking = i + 1
+        return movies
+
+
 @app.route("/")
 def home():
-    movies = db.session.execute(db.select(Movie).order_by(Movie.id)).scalars()
-    return render_template("index.html", movies=movies.all())
+    movies = update_rankings()
+    return render_template("index.html", movies=movies)
 
 
 @app.route("/edit", methods=['GET', 'POST'])
